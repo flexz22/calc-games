@@ -16,7 +16,10 @@ document.querySelector("#app").innerHTML = `
   <label>DPI <input id="dpi" type="number" value="800"></label>
     <label>DPI novo (opcional) <input id="newdpi" type="number" value="1600"></label>
   <div id="result"></div>
-`;
+    <h2>Conta</h2>
+  <div id="auth"></div>
+  `;
+  
 
 const $ = (id) => document.getElementById(id);
 $("from").value = "valorant";
@@ -44,3 +47,33 @@ function update() {
 document.querySelectorAll("#app select, #app input")
     .forEach((el) => el.addEventListener("input", update));
 update();
+function renderAuth(session) {
+  if (session) {
+    $("auth").innerHTML = `
+      <p>Logado como <strong id="who"></strong></p>
+      <button id="logout">Sair</button>`;
+    $("who").textContent = session.user.email;
+    $("logout").onclick = () => supabase.auth.signOut();
+    return;
+  }
+
+  $("auth").innerHTML = `
+    <label>E-mail <input id="email" type="email"></label>
+    <label>Senha (mín. 6 caracteres) <input id="password" type="password"></label>
+    <button id="login">Entrar</button>
+    <button id="signup">Criar conta</button>
+    <p id="authMsg"></p>`;
+
+  const creds = () => ({ email: $("email").value, password: $("password").value });
+
+  $("login").onclick = async () => {
+    const { error } = await supabase.auth.signInWithPassword(creds());
+    if (error) $("authMsg").textContent = error.message;
+  };
+  $("signup").onclick = async () => {
+    const { error } = await supabase.auth.signUp(creds());
+    $("authMsg").textContent = error ? error.message : "Conta criada!";
+  };
+}
+
+supabase.auth.onAuthStateChange((_event, session) => renderAuth(session));
