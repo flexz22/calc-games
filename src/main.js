@@ -2,6 +2,7 @@ import "./style.css";
 import { GAMES } from "./data/games.js";
 import { convertSens, cm360 } from "./lib/sens.js";
 import { eDPI, sensForNewDpi } from "./lib/dpi.js";
+import { supabase } from "./lib/supabase.js";
 
 const options = Object.entries(GAMES)
     .map(([id, g]) => `<option value="${id}">${g.name}</option>`)
